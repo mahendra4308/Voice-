@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Voice Typing Test</title>
+</head>
+<body>
+  <h2>🎤 Voice Typing Demo</h2>
+  <button id="startBtn">Start Mic</button>
+  <button id="stopBtn">Stop</button>
+  <p id="result">👉 यहां आपका बोला हुआ टेक्स्ट दिखेगा...</p>
+
+  <script>
+    if ('webkitSpeechRecognition' in window) {
+      const recognition = new webkitSpeechRecognition();
+      recognition.lang = "hi-IN";   // हिन्दी भाषा
+      recognition.continuous = true;
+      recognition.interimResults = true;
+
+      recognition.onresult = (event) => {
+        let text = "";
+        for (let i = 0; i < event.results.length; i++) {
+          text += event.results[i][0].transcript;
+        }
+        document.getElementById("result").innerText = text;
+      };
+
+      document.getElementById("startBtn").onclick = () => recognition.start();
+      document.getElementById("stopBtn").onclick = () => recognition.stop();
+
+    } else {
+      document.getElementById("result").innerText = "❌ आपका ब्राउज़र SpeechRecognition सपोर्ट नहीं करता।";
+    }
+  </script>
+</body>
+</html>

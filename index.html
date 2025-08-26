@@ -1,35 +1,110 @@
 <!DOCTYPE html>
-<html>
+<html lang="hi">
 <head>
   <meta charset="UTF-8">
-  <title>Voice Typing Test</title>
+  <title>Voice Typing - Hindi & English</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6fb;
+      padding: 30px;
+    }
+    .box {
+      max-width: 700px;
+      margin: auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    }
+    h2 {
+      margin-top: 0;
+      text-align: center;
+    }
+    textarea {
+      width: 100%;
+      height: 250px;
+      padding: 12px;
+      font-size: 16px;
+      border-radius: 10px;
+      border: 1px solid #ddd;
+      resize: vertical;
+    }
+    select, button {
+      padding: 10px 15px;
+      margin: 8px 5px 15px 0;
+      border-radius: 8px;
+      border: none;
+      font-size: 15px;
+      cursor: pointer;
+    }
+    button { background: #2563eb; color: #fff; }
+    button.stop { background: #dc2626; }
+    .status { font-size: 14px; color: #555; margin-top: 10px; }
+  </style>
 </head>
 <body>
-  <h2>🎤 Voice Typing Demo</h2>
-  <button id="startBtn">Start Mic</button>
-  <button id="stopBtn">Stop</button>
-  <p id="result">👉 यहां आपका बोला हुआ टेक्स्ट दिखेगा...</p>
+  <div class="box">
+    <h2>🎤 Voice Typing (Hindi + English + Math)</h2>
+
+    <label>Choose Language: </label>
+    <select id="lang">
+      <option value="hi-IN">Hindi (hi-IN)</option>
+      <option value="en-IN">English (India)</option>
+      <option value="en-US">English (US)</option>
+    </select>
+    <br/>
+
+    <button id="startBtn">Start Mic</button>
+    <button id="stopBtn" class="stop">Stop</button>
+
+    <textarea id="output" placeholder="जो भी बोलोगे यहां टाइप होगा..."></textarea>
+    <div class="status">Status: <span id="stat">Ready</span></div>
+  </div>
 
   <script>
+    let recognition;
+    const output = document.getElementById("output");
+    const stat = document.getElementById("stat");
+    const langSel = document.getElementById("lang");
+
     if ('webkitSpeechRecognition' in window) {
-      const recognition = new webkitSpeechRecognition();
-      recognition.lang = "hi-IN";   // हिन्दी भाषा
+      recognition = new webkitSpeechRecognition();
       recognition.continuous = true;
       recognition.interimResults = true;
+      recognition.lang = langSel.value;
+
+      recognition.onstart = () => {
+        stat.textContent = "Listening...";
+      };
+
+      recognition.onend = () => {
+        stat.textContent = "Stopped";
+      };
+
+      recognition.onerror = (e) => {
+        stat.textContent = "Error: " + e.error;
+      };
 
       recognition.onresult = (event) => {
         let text = "";
         for (let i = 0; i < event.results.length; i++) {
-          text += event.results[i][0].transcript;
+          text += event.results[i][0].transcript + " ";
         }
-        document.getElementById("result").innerText = text;
+        output.value = text;
       };
 
-      document.getElementById("startBtn").onclick = () => recognition.start();
+      document.getElementById("startBtn").onclick = () => {
+        recognition.lang = langSel.value; // dropdown से language
+        recognition.start();
+      };
       document.getElementById("stopBtn").onclick = () => recognition.stop();
+      langSel.onchange = () => {
+        if (recognition) recognition.lang = langSel.value;
+      };
 
     } else {
-      document.getElementById("result").innerText = "❌ आपका ब्राउज़र SpeechRecognition सपोर्ट नहीं करता।";
+      alert("❌ आपका ब्राउज़र SpeechRecognition सपोर्ट नहीं करता। Chrome/Edge ट्राई करें।");
     }
   </script>
 </body>
